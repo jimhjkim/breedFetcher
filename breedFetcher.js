@@ -1,14 +1,16 @@
 const request = require('request');
 
-let userInput = process.argv.slice(2); // -> should be array with single element (breed)
-
-const breedFetcher = function(breed) {
-  let url = `https://api.thecatapi.com/v1/breeds/search?q=${breed}`;
+const fetchBreedDescription = function(breedName, callback) {
+  let url = `https://api.thecatapi.com/v1/breeds/search?q=${breedName}`;
   request(url, (error, response, body) => {
     const data = JSON.parse(body);
-    if (error) throw `Unsuccessful API request: ${error}`;
-    if (data[0] === undefined) throw 'Breed not found';
-    return console.log(data[0].description);
+    if (error) {
+      callback(error, null); // error from request
+    } else if (data[0] === undefined) {
+      callback('Breed not found', null);
+    } else {
+      callback(null, data[0].description.trim());
+    }
   });
 };
-breedFetcher(userInput[0]);
+module.exports = { fetchBreedDescription };
